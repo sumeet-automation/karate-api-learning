@@ -1,7 +1,6 @@
 Feature: sample karate test script
 for help, see: https://github.com/karatelabs/karate/wiki/IDE-Support
 
-
   Background:
     * url baseUrl
 
@@ -10,6 +9,15 @@ for help, see: https://github.com/karatelabs/karate/wiki/IDE-Support
     And path '2'
     When method get
     Then status 200
+
+
+  Scenario: get all users and then get the first user by id
+    * set foo
+      | path  | 0       | 1       |
+      | bar   | 'baz'   | 'ban'   |
+      | check | 'hello' | 'world' |
+    And print 'foo: ', foo
+
 
   Scenario: create new user
     Given path '/api/users'
@@ -86,9 +94,9 @@ for help, see: https://github.com/karatelabs/karate/wiki/IDE-Support
     And match response.id == '#string'
     And print __num , ' ',  __row
     Examples:
-      | name     | job     | id |
-      | morpheus | leader  | 4  |
-      | jason    | leader  | 3  |
+      | name     | job    | id |
+      | morpheus | leader | 4  |
+      | jason    | leader | 3  |
 
   Scenario Outline: create new user with data driven
     Given path '/api/users'
@@ -123,6 +131,7 @@ for help, see: https://github.com/karatelabs/karate/wiki/IDE-Support
         "job": "#(job)"
       }
       """
+    * configure logPrettyResponse = true
     And request payload
     When method post
     Then status 201
@@ -131,4 +140,23 @@ for help, see: https://github.com/karatelabs/karate/wiki/IDE-Support
     And match response.id == '#string'
     And print __num , ' ',  __row
     Examples:
-      |read('user_data.json')|
+      | read('user_data.json') |
+
+  Scenario: Fuzzy Mathces
+    * def payload =
+      """
+      {
+        "name": "sumeet",
+        "job": "leader",
+        "check": "value"
+      }
+      """
+    * match payload.check ==  '#present'
+    * match payload == { name: '#string', job: '#notnull',  check: '#ignore' }
+
+  @run
+  Scenario: Calling from another feature file
+    * call read('classpath:examples/users/CallingTest.feature')
+    * print payload
+    * match payload.check ==  '#present'
+    * match payload == { name: '#string', job: '#notnull',  check: '#ignore' }

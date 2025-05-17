@@ -6,7 +6,9 @@ public class UsersTest {
 
     @Karate.Test
     Karate testUsers() {
-        return Karate.run("users").relativeTo(getClass());
+        return Karate.run("users")
+                .tags("@run")
+                .relativeTo(getClass());
     }
 
 }
